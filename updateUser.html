@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat:no-repeat;
+            background-size:100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        input,
+        textarea {
+            margin: 20px auto;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./User.html">本人详细信息</a></li>
+                    <li><a href="./updateUser.html">修改资料</a></li>
+                    <li><a href="./UserHot.html">捐赠热点</a></li>
+                    <li><a href="./insertDonation.html">发布捐赠</a></li>
+                    <li><a href="./selectDonation.html">接受捐赠</a></li>
+                    <li><a href="./searchDonation.html">查询捐赠</a></li>
+                    <li><a href="./UserHome.html">用户主页</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--修改用户的资料-->
+    <div class="container" id="container">
+        <div class="starter">
+            <div class="main">
+                <h2>尊敬的{{nav}}个人信息</h2>
+                <h3>用户名:</h3>
+                <span>{{username}}</span>
+                <h3>密码:</h3>
+                <input type="password" id="pass" class="form-control" placeholder="密码" required style="width:300px">
+                <h3>姓名:</h3>
+                <input type="text" id="name" class="form-control" placeholder="用户姓名" required style="width:300px">
+                <h3>性别:</h3>
+                <input type="text" id="sex" class="form-control" placeholder="性别" required style="width:300px">
+                <h3>电话号:</h3>
+                <input type="text" id="phone_num" class="form-control" placeholder="电话号码" required style="width:300px">
+                <h3>地址:</h3>
+                <textarea class="form-control" id="address" name="deblock_udid" rows="8" style="width:300px"
+                    placeholder="地址"></textarea>
+                <h3>邮箱:</h3>
+                <input type="text" id="email" class="form-control" placeholder="电话号码" required style="width:300px">
+                <button class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;margin: 20px auto"
+                    v-on:click="btn">修改资料</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        //获取顶部的用户名
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                nav: "",
+                username: "",
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                var _this = this;
+                //获取该用户的所有资料
+                $.ajax({
+                    url: 'http://localhost:8008/user/getUser',
+                    data: { "username": number },
+                    type: 'get',
+                    success: function (data) {
+                        _this.nav = data.username
+                        _this.username = data.username
+                        $("#pass").val(data.pass)
+                        $("#name").val(data.name)
+                        $("#sex").val(data.sex)
+                        $("#phone_num").val(data.phone_num)
+                        $("#address").val(data.address)
+                        $("#email").val(data.email)
+                        console.log(data)
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+            },
+            methods: {
+                //点击修改资料
+                btn:function(){
+                    var number = localStorage.getItem("number")
+                    $.ajax({
+                        url:'http://localhost:8008/user/updateUser',
+                        data:{"username":number,"pass":$("#pass").val(),"name":$("#name").val(),"sex":$("#sex").val(),"address":$("#address").val(),"phone_num":$("#phone_num").val(),"email":$("#email").val()},
+                        type:'get',
+                        success:function(data){
+                            console.log(data)
+                            alert("修改成功")
+                        },
+                        error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                    })
+                }
+            }
+        })
+
+    </script>
+</body>
+
+</html>

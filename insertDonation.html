@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat:no-repeat;
+            background-size:100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        input,
+        textarea,
+        button {
+            margin: 20px auto;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./User.html">本人详细信息</a></li>
+                    <li><a href="./updateUser.html">修改资料</a></li>
+                    <li><a href="./UserHot.html">捐赠热点</a></li>
+                    <li><a href="./insertDonation.html">发布捐赠</a></li>
+                    <li><a href="./selectDonation.html">接受捐赠</a></li>
+                    <li><a href="./searchDonation.html">查询捐赠</a></li>
+                    <li><a href="./UserHome.html">用户主页</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--添加捐赠-->
+    <div class="container" id="container">
+        <div class="starter">
+            <!--同意协议部分-->
+            <div v-if="seen">
+                <h3>协议</h3>
+                <p>本捐赠本着义务的原则，一切利益纠纷与本站无关</p>
+                <button class="btn btn-lg btn-warning btn-block" type="button" style="width:80px;margin: 20px auto"
+                    v-on:click="btn">我同意</button>
+            </div>
+
+            <!--填写捐赠表-->
+            <div v-if="seen2">
+                <div class="table-responsive">
+                    <h3>请填写发布捐赠的信息</h3>
+                    <form class="form-signin" id="form-test" style="margin:0 auto">
+                        <label for="">物品名称(用于物品分类)</label>
+                        <input type="text" id="name" class="form-control" placeholder="物品名称(用于物品分类)" required autofocus
+                            style="width:300px">
+                        <label for="">发布物品标题</label>
+                        <input type="text" id="title" class="form-control" placeholder="发布物品标题" required
+                            style="width:300px">
+                        <label for="">发布物品内容</label>
+                        <textarea class="form-control" id="content" name="deblock_udid" rows="8" style="width:300px"
+                            placeholder="发布物品内容"></textarea>
+                        <label for="">图片选择</label>
+                        <input type="file" id="img_url" class="form-control" required
+                            style="width:300px">
+                        
+                        <button id="btn" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                            v-on:click="add">发布</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        //顶部用户名的显示
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                seen: true,
+                seen2: false
+            },
+            mounted() {
+
+            },
+            methods: {
+                //同意协议
+                btn: function () {
+                    var _this = this;
+                    _this.seen = false
+                    _this.seen2 = true
+                },
+
+                //体检捐赠表单
+                add: function () {
+                    var number = localStorage.getItem("number")
+                    console.log("点击了")
+                    var img_url = $("#img_url").val()
+                    img_url = "./images/"+img_url.slice(12)
+                    console.log("img_url is"+img_url)
+                    $.ajax({
+                        url: 'http://localhost:8008/user/insertDonation',
+                        data:{"username":number,"name":$("#name").val(),"title":$("#title").val(),"content":$("#content").val(),"img_url":img_url},
+                        type: 'get',
+                        success:function(data){
+                            console.log(data)
+                            alert("发布成功")
+                        },
+                        error:function(xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType +  ', error: ' + error)
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        a {
+            text-decoration: none;
+            margin-left: 200px;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script type="text/javascript">
+
+
+    </script>
+</head>
+
+<body>
+    <!--登录页面-->
+    <div class="container" id="container">
+        <form class="form-signin" id="form-test" style="margin:0 auto">
+            <h2>{{title}}</h2>
+            <label for="">{{username}}</label>
+            <input type="email" id="number" class="form-control" placeholder="学号" required autofocus
+                style="width:300px;">
+            <label for="">{{password}}</label>
+            <input type="password" id="password" class="form-control" placeholder="密码" required style="width:300px;">
+            <div class="checkbox">
+                <label>
+                    <a href="./Register.html">用户注册</a>
+                </label>
+            </div>
+            <button id="btn1" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                v-on:click="userLand">用户登陆</button>
+            <button id="btn2" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                v-on:click="adminLand">管理员登陆</button>
+        </form>
+    </div>
+
+    <script>
+        var example = new Vue({
+            el: '#container',
+            data: {
+                title: '欢迎登录爱心捐赠管理系统',
+                username: '用户名',
+                password: '密码'
+            },
+            methods: {
+                //用户登录
+                userLand: function () {
+                    $.ajax({
+                        url: 'http://localhost:8008/user/userLand',
+                        data: { "username": $("#number").val(), "pass": $("#password").val() },
+                        type: 'get',
+                        success: function (data) {
+                            //返回值为1代表登录成功
+                            if (data == 1) {
+                                //保存当前登录的用户名
+                                localStorage.setItem("number", $("#number").val());
+                                window.location.href = "./User.html"
+                            } else {
+                                alert("密码错误")
+                            }
+
+                            console.log(data)
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    });
+                },
+                //管理员登录
+                adminLand: function () {
+                    $.ajax({
+                        url: 'http://localhost:8008/admin/adminLand',
+                        data: { "username": $("#number").val(), "pass": $("#password").val() },
+                        type: 'get',
+                        success: function (data) {
+                            console.log(data)
+                            //返回值为1代表登录成功
+                            if (data == 1) {
+                                //保存当前登录的用户名
+                                localStorage.setItem("number", $("#number").val());
+                                window.location.href = "./Admin.html"
+                            } else {
+                                alert("密码错误")
+                            }
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    })
+                }
+            },
+        })
+    </script>
+
+</body>
+
+</html>

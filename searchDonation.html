@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        .content {
+            border: 1px solid gainsboro;
+            margin: 10px auto;
+            padding: 20px;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .first,
+        .second,
+        .third {
+            float: left;
+            margin: 30px;
+        }
+
+        button {
+            margin-top: 30px;
+        }
+
+        .goto {
+            width: 50px;
+            height: 50px;
+            border-radius: 50px;
+            border: 1px solid antiquewhite;
+            background-color: antiquewhite;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./User.html">本人详细信息</a></li>
+                    <li><a href="./updateUser.html">修改资料</a></li>
+                    <li><a href="./UserHot.html">捐赠热点</a></li>
+                    <li><a href="./insertDonation.html">发布捐赠</a></li>
+                    <li><a href="./selectDonation.html">接受捐赠</a></li>
+                    <li><a href="./searchDonation.html">查询捐赠</a></li>
+                    <li><a href="./UserHome.html">用户主页</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--查询用户捐赠的主题-->
+    <div class="container" id="container">
+        <div class="starter">
+            <input type="email" id="name" class="form-control" placeholder="搜索物品名" required autofocus
+                style="width:300px;">
+            <button id="btn" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                v-on:click="search">搜索</button>
+
+            <div v-for="(item,index) in items" class="content">
+                <div class="first">
+                    <button class="goto" v-on:click="goto(index)">{{item.username}}</button>
+                </div>
+                <div class="second">
+                    <img id="img" v-bind:src="item.img_url">
+                </div>
+                <div class="third">
+                    {{item.title}}<br>
+                    {{item.content}}
+                </div>
+                <button class="btn" v-on:click="need(index)">我需要</button>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        //顶部用户名的显示
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                items: []
+            },
+            mounted() {
+
+            },
+            methods: {
+                //搜索按钮
+                search: function () {
+                    var name = $("#name").val()
+                    console.log(name)
+                    var _this = this
+
+                    $.ajax({
+                        url: 'http://localhost:8008/user/searchDonation',
+                        data: { "name": name },
+                        type: 'get',
+                        success: function (data) {
+                            console.log(data)
+                            _this.items = data
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    })
+                },
+                //点击我想要按钮
+                need: function (index) {
+                    var number = localStorage.getItem("number")
+                    var _this = this
+                    console.log(index)
+                    console.log(_this.items[index])
+                    $.ajax({
+                        url: 'http://localhost:8008/user/insertReceiver',
+                        data: { "username": number, "donate_username": _this.items[index].username, "donate_name": _this.items[index].name, "donate_title": _this.items[index].title },
+                        type: 'get',
+                        success: function (data) {
+                            console.log(data)
+                            alert("加入需求成功")
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    })
+                },
+                //点击用户名，前往该用户的主页
+                goto: function (index) {
+                    var _this = this
+                    var name = _this.items[index].username
+                    window.location.href = "./otherHome.html?username=" + name
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

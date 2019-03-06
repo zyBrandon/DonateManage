@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat:no-repeat;
+            background-size:100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        .info {
+            border: 1px solid gray;
+        }
+
+        .content{
+            border: 1px solid gainsboro;
+            margin: 10px auto;
+            padding: 20px;
+        }
+
+        img{
+            width: 100px;
+            height: 100px;
+        }
+
+        a{
+            text-decoration: none;
+        }
+
+        .clear{
+            clear: both;
+        }
+        span{
+            font-size: 90%;
+        }
+
+        .comment_username{
+            font-size: 110%;
+            color: gray;
+        }
+        .time{
+            font-size: 80%;
+            color: gainsboro;
+        }
+
+        .comment{
+            border: 1px dotted gray;
+        }
+
+        .give{
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            background-color: antiquewhite;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./User.html">本人详细信息</a></li>
+                    <li><a href="./updateUser.html">修改资料</a></li>
+                    <li><a href="./UserHot.html">捐赠热点</a></li>
+                    <li><a href="./insertDonation.html">发布捐赠</a></li>
+                    <li><a href="./selectDonation.html">接受捐赠</a></li>
+                    <li><a href="./searchDonation.html">查询捐赠</a></li>
+                    <li><a href="./UserHome.html">用户主页</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--用户主页-->
+    <div class="container" id="container">
+        <div class="starter">
+            <div class="info">
+                <h3>用户名:{{username}}</h3>
+                <span>性别:{{sex}}</span><br>
+                <span>联系电话:{{phone_num}}</span><br>
+                <span>邮箱{{email}}</span><br>
+                <button class="give" v-on:click="give">👍</button>
+                <span>收到{{praise_num}}人点赞</span>
+            </div>
+            <div>
+                <h4>发布的捐赠</h4>
+                <div v-for="(item,index) in items" class="content">
+                    <div class="first">
+                        <a href="">用户：{{item.username}}</a><br>
+                    </div>
+                    <div class="second">
+                        <img id="img" v-bind:src="item.img_url">
+                    </div>
+                    <div class="third">
+                        {{item.title}}<br>
+                        {{item.content}}
+                    </div>
+                    <button class="btn" v-on:click="need(index)">我需要</button>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div>
+                <h4>收到的评论</h4>
+                <div v-for="comment in comments" class="comment">
+                    <span class="comment_username">{{comment.comment_username}}:</span>
+                    <span>{{comment.comment_content}}</span><br>
+                    <span class="time">评论时间{{comment.comment_time}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //顶部用户名的显示
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                username: "",
+                sex: "",
+                phone_num: "",
+                email: "",
+                items:[],
+                comments:[],
+                praise_num:0
+            },
+            mounted() {
+                var _this = this
+                var number = localStorage.getItem("number")
+                //获取该用户的资料
+                $.ajax({
+                    url: 'http://localhost:8008/user/getUser',
+                    data: { "username": number },
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        _this.username = data.username
+                        _this.sex = data.sex
+                        _this.phone_num = data.phone_num
+                        _this.email = data.email
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+                //查询该用户的捐赠物
+                $.ajax({
+                    url: 'http://localhost:8008/user/selectDonationByUsername',
+                    data: {"username":number},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        _this.items = data
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+                //查询该用户收到的评论
+                $.ajax({
+                    url: 'http://localhost:8008/user/selectCommentByUsername',
+                    data: {"username":number},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        _this.comments = data
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+                //查询该用户收到的赞
+                $.ajax({
+                    url: 'http://localhost:8008/user/selectPraise',
+                    data: {"username":number},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        _this.praise_num = data
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+            },
+            methods: {
+                give:function(){
+                    console.log("点赞了")
+                },
+                //点击需要该商品
+                need:function(index){
+                    var number = localStorage.getItem("number")
+                    var _this = this
+                    console.log(index)
+                    console.log(_this.items[index])
+                    $.ajax({
+                    url: 'http://localhost:8008/user/insertReceiver',
+                    data: {"username":number,"donate_username":_this.items[index].username,"donate_name":_this.items[index].name,"donate_title":_this.items[index].title},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        alert("加入需求成功")
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

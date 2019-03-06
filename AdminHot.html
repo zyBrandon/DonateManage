@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>管理员</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+        input,button{
+            margin: 10px auto;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./Admin.html">用户管理</a></li>
+                    <li><a href="./searchUser.html">查询用户资料</a></li>
+                    <li><a href="./AdminDonation.html">捐赠管理</a></li>
+                    <li><a href="./AdminReceiver.html">接受管理</a></li>
+                    <li><a href="./AdminData.html">数据统计</a></li>
+                    <li><a href="./AdminHot.html">发布热点需求</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 用户管理页主页 -->
+    <div class="container" id="container">
+        <div class="starter">
+            <div class="table-responsive">
+                <h2>用户注册</h2>
+                <form class="form-signin" id="form-test" style="margin:0 auto">
+                    <label for="">地区</label>
+                    <input type="text" id="location" class="form-control" placeholder="地区" required autofocus
+                        style="width:300px">
+                    <label for="">需要捐赠的物品</label>
+                    <input type="text" id="donation" class="form-control" placeholder="需要捐赠的物品" required style="width:300px">
+                    <label for="">捐赠原因</label>
+                    <input type="text" id="reason" class="form-control" placeholder="捐赠原因" required
+                        style="width:300px">
+                    <button id="btn" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                        v-on:click="add">发布</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //顶部用户名的显示
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var demo = new Vue({
+            el:'#container',
+            data: {
+
+            },
+            mounted(){
+
+            },
+            methods: {
+                add:function(){
+                    var time = getNowFormatDate()
+                    $.ajax({
+                    url: 'http://localhost:8008/admin/insertHot',
+                    data: {"location":$("#location").val(),"donation":$("#donation").val(),"reason":$("#reason").val(),"hot_time":time},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        alert("发布成功")
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+                }
+            }
+
+        })
+
+        //获取当前时间，格式YYYY-MM-DD
+        function getNowFormatDate() {
+            var date = new Date();
+            var seperator1 = "-";
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            var currentdate = year + seperator1 + month + seperator1 + strDate;
+            return currentdate;
+        }
+    </script>
+</body>
+
+</html>

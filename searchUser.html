@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>管理员</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        #btn {
+            margin-top: 30px;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./Admin.html">用户管理</a></li>
+                    <li><a href="./searchUser.html">查询用户资料</a></li>
+                    <li><a href="./AdminDonation.html">捐赠管理</a></li>
+                    <li><a href="./AdminReceiver.html">接受管理</a></li>
+                    <li><a href="./AdminData.html">数据统计</a></li>
+                    <li><a href="./AdminHot.html">发布热点需求</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--查询用户-->
+    <div class="container" id="container">
+        <div class="starter">
+            <input type="email" id="username" class="form-control" placeholder="搜索物品名" required autofocus
+                style="width:300px;">
+            <button id="btn" class="btn btn-lg btn-warning btn-block" type="button" style="width:200px;"
+                v-on:click="search">搜索</button>
+
+            <div class="table-responsive">
+                <h2>用户列表</h2>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr class="active">
+                            <th>用户名</th>
+                            <th>密码</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>电话号</th>
+                            <th>地址</th>
+                            <th>邮箱</th>
+                            <th>删除</th>
+                            <th>添加</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="success" v-for="(item,index) in items">
+                            <td>{{item.username}}</td>
+                            <td>{{item.pass}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.sex}}</td>
+                            <td>{{item.phone_num}}</td>
+                            <td>{{item.address}}</td>
+                            <td>{{item.email}}</td>
+                            <th><button id="btn1" class="btn btn-lg btn-warning btn-block" type="button"
+                                    style="width:80px;height: 50px;" v-on:click="del(index)">删除</button></th>
+                            <th><button id="btn2" class="btn btn-lg btn-warning btn-block" type="button"
+                                    style="width:80px;height: 50px;" v-on:click="add">添加</button></th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        //获取头部用户名
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            }
+        })
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                items: []
+            },
+            mounted() {
+
+            },
+            methods: {
+                //查询用户
+                search: function () {
+                    var username = $("#username").val()
+                    var _this = this
+                    $.ajax({
+                        url: 'http://localhost:8008/admin/selectUserByUsername',
+                        data: { "username": username },
+                        type: 'get',
+                        success: function (data) {
+                            console.log(data)
+                            _this.items = data
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    })
+                },
+                //删除用户
+                del: function (index) {
+                    console.log("点了删除")
+                    var _this = this
+                    console.log(_this.items[index].username)
+                    $.ajax({
+                        url: 'http://localhost:8008/admin/deleteUser',
+                        data: { "username": _this.items[index].username },
+                        type: 'get',
+                        success: function (data) {
+                            console.log(data)
+                            alert("删除成功")
+                            location.reload();
+                        },
+                        error: function (xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                        }
+                    })
+                },
+                //添加用户
+                add: function () {
+                    console.log("点了添加")
+                    window.location.href = "./Register.html"
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

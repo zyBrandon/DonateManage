@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat:no-repeat;
+            background-size:100% 100%;
+            background-attachment: fixed;
+        }
+
+        button{
+            margin-top: 30px;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--注册页面-->
+    <div class="container" id="container">
+        <div class="starter">
+            <div class="table-responsive">
+                <h2>用户注册</h2>
+                <form class="form-signin" id="form-test" style="margin:0 auto">
+                    <label for="">{{username}}</label>
+                    <input type="text" id="username" class="form-control" placeholder="用户名" required autofocus
+                        style="width:300px">
+                    <label for="">{{pass}}</label>
+                    <input type="password" id="pass" class="form-control" placeholder="密码" required style="width:300px">
+                    <label for="">{{re_pass}}</label>
+                    <input type="password" id="re_pass" class="form-control" placeholder="确认密码" required
+                        style="width:300px">
+                    <label for="">{{name}}</label>
+                    <input type="text" id="name" class="form-control" placeholder="用户姓名" required
+                        style="width:300px">
+                    <label for="">{{sex}}</label>
+                    <input type="text" id="sex" class="form-control" placeholder="性别" required style="width:300px">
+                    <label for="">{{address}}</label>
+                    <textarea class="form-control" id="address" name="deblock_udid" rows="8" style="width:300px"
+                        placeholder="地址"></textarea>
+                    <label for="">{{phone_num}}</label>
+                    <input type="text" id="phone_num" class="form-control" placeholder="电话号码" required
+                        style="width:300px">
+                    <label for="">{{email}}</label>
+                    <input type="text" id="email" class="form-control" placeholder="电话号码" required
+                        style="width:300px">
+                    <button id="btn" class="btn btn-lg btn-warning btn-block" type="button"
+                        style="width:200px;" v-on:click="add">添加</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var example = new Vue({
+            el:'#container',
+            data:{
+                username:'用户名',
+                pass:'密码',
+                re_pass:'重复密码',
+                name:'姓名',
+                sex:'性别',
+                address:"家庭地址",
+                phone_num:'电话号码',
+                email:'电子邮箱'
+            },
+            methods: {
+                //提交注册表单
+                add:function(){
+                    if($("#pass").val()!=$("#re_pass").val()){
+                        alert("密码和重复密码不一致")
+                    } else {
+                        console.log("一致")
+                    }
+                    $.ajax({
+                        url: 'http://localhost:8008/admin/insertUser',
+                        data:{"username":$("#username").val(),"pass":$("#pass").val(),"name":$("#name").val(),"sex":$("#sex").val(),"address":$("#address").val(),"phone_num":$("#phone_num").val(),"email":$("#email").val()},
+                        type: 'get',
+                        success:function(data){
+                            console.log(data)
+                            alert("添加成功")
+                        },
+                        error:function(xhr, errorType, error) {
+                            console.log('Ajax request error, errorType: ' + errorType +  ', error: ' + error)
+                        }
+                    })
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>

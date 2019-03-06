@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url(images/1.jpg);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        .starter {
+            margin-top: 40px;
+            padding: 40px 12px;
+            text-align: center;
+        }
+
+        #china-map {
+            width: 700px;
+            height: 700px;
+            margin: auto;
+        }
+
+        .content {
+            border: 1px solid black;
+            font-size: 170%;
+        }
+    </style>
+    <script type="text/javascript" src="./js/ajax.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/echarts.min.js"></script>
+    <script src="./js/china.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!--顶部导航栏-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand"><span class="admin_name">{{username}}</span></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./Login.html">退出登录</a></li>
+                    <li><a href="./User.html">本人详细信息</a></li>
+                    <li><a href="./updateUser.html">修改资料</a></li>
+                    <li><a href="./UserHot.html">捐赠热点</a></li>
+                    <li><a href="./insertDonation.html">发布捐赠</a></li>
+                    <li><a href="./selectDonation.html">接受捐赠</a></li>
+                    <li><a href="./searchDonation.html">查询捐赠</a></li>
+                    <li><a href="./UserHome.html">用户主页</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 用户管理页主页 -->
+    <div class="container" id="container">
+        <div class="starter">
+            <h2>热点地区需求</h2>
+            <div id="china-map"></div>
+            <div v-for="(item,index) in items" class="content">
+                <span>地区:{{item.location}} </span>
+                <span>需求:{{item.donation}} </span><br>
+                <span>需求原因:{{item.reason}}</span>
+                <span>时间:{{item.hot_time}}</span>
+            </div>
+            <button id="btn2" class="btn btn-lg btn-warning btn-block" type="button"
+                style="width:200px;height: 70px; margin: 0px auto" v-on:click="add">去捐赠</button>
+        </div>
+    </div>
+
+    <script>
+        var example = new Vue({
+            el: '#navbar',
+            data: {
+                username: ""
+            },
+            mounted() {
+                var number = localStorage.getItem("number")
+                console.log(number)
+                this.username = "尊敬的" + number
+            },
+            methods: {
+
+            },
+        })
+
+        var city = []
+
+        var demo = new Vue({
+            el: '#container',
+            data: {
+                items: []
+            },
+            mounted() {
+                var _this = this
+                $.ajax({
+                    url: 'http://localhost:8008/user/selectHot',
+                    data: {},
+                    type: 'get',
+                    success: function (data) {
+                        console.log(data)
+                        _this.items = data
+
+                        var myChart = echarts.init(document.getElementById('china-map'));
+                        var option = {
+                            tooltip: {
+                                //                    show: false //不显示提示标签
+                                formatter: '{b}', //提示标签格式
+                                backgroundColor: "#ff7f50",//提示标签背景颜色
+                                textStyle: { color: "#fff" } //提示标签字体颜色
+                            },
+                            series: [{
+                                type: 'map',
+                                mapType: 'china',
+                                label: {
+                                    normal: {
+                                        show: true,//显示省份标签
+                                        textStyle: { color: "#c71585" }//省份标签字体颜色
+                                    },
+                                    emphasis: {//对应的鼠标悬浮效果
+                                        show: true,
+                                        textStyle: { color: "#800080" }
+                                    }
+                                },
+                                itemStyle: {
+                                    normal: {
+                                        borderWidth: .5,//区域边框宽度
+                                        borderColor: '#009fe8',//区域边框颜色
+                                        areaColor: "#ffefd5",//区域颜色
+                                    },
+                                    emphasis: {
+                                        borderWidth: .5,
+                                        borderColor: '#4b0082',
+                                        areaColor: "#ffdead",
+                                    }
+                                },
+                                data: [
+                                    { name: data[0].location, selected: true },//设置选中城市
+                                ]
+                            }],
+                        };
+
+                        myChart.setOption(option);
+                        myChart.on('mouseover', function (params) {
+                            var dataIndex = params.dataIndex;
+                            console.log(params);
+                        });
+                        myChart.on('click', function (param) {
+                            // alert(param.name);
+                            //遍历取到provincesText 中的下标  去拿到对应的省js
+                            for (var i = 0; i < provincesText.length; i++) {
+                                if (param.name == provincesText[i]) {
+                                    //显示对应省份的方法
+                                    // showProvince(provinces[i]) ;
+                                    showProvince(provinces[i], provincesText[i])
+                                    break;
+                                }
+                            }
+                        });
+
+                    },
+                    error: function (xhr, errorType, error) {
+                        console.log('Ajax request error, errorType: ' + errorType + ', error: ' + error)
+                    }
+                })
+            },
+            methods: {
+                add: function () {
+                    window.location.href = "./insertDonation.html"
+                }
+            }
+        })
+
+        console.log("城市为" + city)
+
+
+
+    </script>
+</body>
+
+</html>
